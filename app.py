@@ -15,11 +15,12 @@ from src.config import config
 
 # Page Configuration
 st.set_page_config(
-    page_title="ADK Germany Logistics Advisor",
+    page_title="Logistics Delivery Advisor powered by Google Cloud",
     page_icon="🇩🇪",
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
 
 # Custom Styling (Zinc / Dark Modern Aesthetic)
 st.markdown("""
@@ -107,7 +108,8 @@ agent = get_agent()
 repo = agent.repo
 
 # Header
-st.markdown('<div class="main-title">🇩🇪 ADK Logistics Delivery Advisor</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">🇩🇪 Logistics Delivery Advisor powered by Google Cloud</div>', unsafe_allow_html=True)
+
 st.markdown(
     '<div class="sub-title">Powered by <b>Google WeatherNext2 Atmospheric AI</b>, <b>BigQuery Central Repository</b> & <b>Historic Autobahn Traffic Models</b></div>',
     unsafe_allow_html=True

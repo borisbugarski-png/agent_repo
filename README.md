@@ -1,6 +1,8 @@
-# ADK Germany Logistics Delivery Advisor Agent
+# 🇩🇪 Logistics Delivery Advisor powered by Google Cloud
+
 
 An intelligent operations advisor built with the **Agent Development Kit (ADK)** for logistics dispatchers in Germany. The agent ingests live and historical delivery data from **Google Cloud BigQuery**, integrates high-resolution meteorological predictions from **Google WeatherNext2**, cross-references historic **Autobahn traffic bottlenecks**, and proactively advises operators on delivery delays, SLA window breaches, and mitigation strategies.
+
 
 ---
 

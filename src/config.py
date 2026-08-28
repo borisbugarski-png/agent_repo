@@ -21,8 +21,9 @@ class Config:
     WEATHERNEXT2_SIMULATION_SCENARIO: str = os.getenv("WEATHERNEXT2_SCENARIO", "STORM_FRONT_SOUTH_WEST")
     
     # Agent Parameters
-    AGENT_NAME: str = "ADK Germany Logistics Advisor"
+    AGENT_NAME: str = "Logistics Delivery Advisor powered by Google Cloud"
     MAX_REASONING_STEPS: int = 5
+
     DELAY_THRESHOLD_MINUTES_FLAG: int = 25  # Flag operator if delay exceeds 25 mins
 
 config = Config()
