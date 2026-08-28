@@ -1,16 +1,51 @@
 """
 Interactive CLI for Logistics Operators to query the ADK Advisor Agent.
+Includes simulated 2-second animated reasoning progress bar for real-time operator feedback.
 """
 
 import sys
+import time
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt
+from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TaskProgressColumn
 
 from src.agent.advisor_agent import GermanyLogisticsAdvisorAgent
 from src.agent.adk_framework import AgentContext
 
 console = Console()
+
+
+def show_reasoning_progress_bar():
+    """
+    Displays a sleek 2-second animated progress bar illustrating
+    ADK agent reasoning, BigQuery lookups, WeatherNext2 integration, and traffic modeling.
+    """
+    with Progress(
+        SpinnerColumn(spinner_name="dots"),
+        TextColumn("[bold cyan]{task.description}[/bold cyan]"),
+        BarColumn(bar_width=30, style="dim white", complete_style="cyan", finished_style="bold green"),
+        TaskProgressColumn(),
+        console=console,
+        transient=True
+    ) as progress:
+        task = progress.add_task("Initializing ADK reasoning...", total=100)
+        
+        stages = [
+            (25, "🔍 Querying BigQuery logistics repository..."),
+            (55, "⛈️ Ingesting Google WeatherNext2 atmospheric radar..."),
+            (80, "🚦 Analyzing historic Autobahn traffic bottlenecks..."),
+            (100, "🧠 Formulating dispatch operator advisory..."),
+        ]
+        
+        for target_pct, stage_text in stages:
+            progress.update(task, description=stage_text)
+            current = progress.tasks[0].completed
+            step_increment = 2.5
+            while current < target_pct:
+                progress.advance(task, step_increment)
+                current += step_increment
+                time.sleep(0.05)  # Total 40 steps * 0.05s = 2.0 seconds
 
 
 def interactive_cli():
@@ -40,6 +75,9 @@ def interactive_cli():
             if query.lower() in ["exit", "quit", "q"]:
                 console.print("[dim]Exiting ADK Logistics Advisor. Gute Fahrt![/dim]")
                 break
+
+            # 2-second animated reasoning progress bar
+            show_reasoning_progress_bar()
 
             response = agent.answer_operator_query(query, context=context)
             console.print(Panel(response, title="[bold green]ADK Advisor Response[/bold green]", border_style="green"))
