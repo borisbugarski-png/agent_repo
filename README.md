@@ -67,26 +67,45 @@ adk_logistics_advisor/
 
 ### 1. Environment Setup
 ```bash
-cd /Users/user/.gemini/jetski/scratch/adk_logistics_advisor
+cd /Users/borisbugarski/.gemini/jetski/scratch/adk_logistics_advisor
 source .venv/bin/activate
 ```
 
-### 2. Run the Logistics Advisor Dashboard
-Run the automated end-to-end evaluation across all German delivery routes:
+### 2. 🌐 Launch the Streamlit Web Dashboard *(Recommended)*
+Start the interactive dispatch operations web application:
 ```bash
-PYTHONPATH=. .venv/bin/python src/run_advisor.py
+.venv/bin/streamlit run app.py
 ```
+*(Or if your virtual environment is active: `streamlit run app.py`)*
 
-### 3. Launch the Interactive Operator Console
-Chat directly with the ADK Advisor Agent:
+👉 Open your browser at: **[http://localhost:8501](http://localhost:8501)**
+
+#### 🌟 Web Dashboard Features:
+- **Live KPI Strip**: Instant metrics for Active Shipments, On-Time % (Not at Risk), Predicted Delayed %, SLA Window Breaches, and Pharma Cold-Chain at Risk.
+- **Interactive German Transit Map**: Visualizes delivery routes, origin/destination hubs, and weather-impacted corridors using Plotly.
+- **Advisor Copilot & Query Bar**: Ask natural language operational questions with 1-click suggestion chips (`Shift Overview`, `On-Time Deliveries`, `Pharma Cold-Chain`, `Munich Operations`, `A9 Squall Line`, `SLA Breaches`).
+- **Sidebar Dispatch Filters**: Filter shipments in real-time by City, Corridor, Priority, or Risk Level.
+- **Actionable Delay Cards**: Detailed breakdowns of Weather slowdown + Traffic bottleneck minutes, recommended mitigation actions, and auto-generated client notifications.
+
+---
+
+### 3. 💻 Launch the Interactive Operator CLI Console
+Chat directly with the ADK Advisor Agent in your terminal:
 ```bash
 PYTHONPATH=. .venv/bin/python src/cli.py
 ```
 
-### 4. Run the Test Suite
+### 4. 📊 Run the Automated Evaluation Batch Report
+Execute a complete batch scan across all German routes:
+```bash
+PYTHONPATH=. .venv/bin/python src/run_advisor.py
+```
+
+### 5. 🧪 Run the Test Suite
 ```bash
 PYTHONPATH=. .venv/bin/pytest tests/
 ```
+
 
 ---
 
