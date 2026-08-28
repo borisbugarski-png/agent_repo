@@ -1,10 +1,16 @@
+#!/usr/bin/env python3
 """
 Interactive CLI for Logistics Operators to query the ADK Advisor Agent.
 Includes simulated 2-second animated reasoning progress bar for real-time operator feedback.
 """
 
 import sys
+import os
 import time
+
+# Ensure project root is in sys.path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt
@@ -14,6 +20,7 @@ from src.agent.advisor_agent import GermanyLogisticsAdvisorAgent
 from src.agent.adk_framework import AgentContext
 
 console = Console()
+
 
 
 def show_reasoning_progress_bar():
