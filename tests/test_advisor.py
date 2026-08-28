@@ -74,3 +74,17 @@ def test_advisor_agent_queries():
     # Pharma / Temperature-Sensitive query
     temp_query = agent.answer_operator_query("Show me temperature-sensitive packages affected by weather")
     assert "Temperature-Sensitive" in temp_query or "Pharma" in temp_query
+
+    # On-Time Deliveries query
+    ontime_query = agent.answer_operator_query("Show me all deliveries that are on time and not at risk")
+    assert "On-Time & Low-Risk Deliveries" in ontime_query
+    assert "PKG-DE-BER-01" in ontime_query or "PKG-DE-HAJ-01" in ontime_query
+
+
+def test_on_time_deliveries_metrics():
+    agent = GermanyLogisticsAdvisorAgent()
+    rep = agent.generate_operator_advisory_report()
+    assert rep["on_time_count"] >= 10, "Should detect at least 10 on-time deliveries"
+    assert rep["on_time_percentage"] > 0
+    assert rep["total_active_deliveries"] == rep["on_time_count"] + rep["deliveries_delayed_count"]
+

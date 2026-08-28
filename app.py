@@ -153,7 +153,7 @@ if selected_risk != "All Risk Levels":
 # ---------------------------------------------------------
 # Top KPI Metrics Strip
 # ---------------------------------------------------------
-c1, c2, c3, c4, c5 = st.columns(5)
+c1, c2, c3, c4, c5, c6 = st.columns(6)
 with c1:
     st.markdown(f"""
     <div class="metric-card">
@@ -164,28 +164,35 @@ with c1:
 with c2:
     st.markdown(f"""
     <div class="metric-card">
-        <div style="color: #94a3b8; font-size: 0.85rem;">Predicted Delayed (≥20m)</div>
-        <div class="metric-value" style="color: #f59e0b;">{rep['deliveries_delayed_count']} <span style="font-size: 1rem;">({rep['percentage_affected']}%)</span></div>
+        <div style="color: #94a3b8; font-size: 0.85rem;">On-Time (Not at Risk)</div>
+        <div class="metric-value" style="color: #22c55e;">{rep.get('on_time_count', 0)} <span style="font-size: 0.95rem;">({rep.get('on_time_percentage', 0)}%)</span></div>
     </div>
     """, unsafe_allow_html=True)
 with c3:
+    st.markdown(f"""
+    <div class="metric-card">
+        <div style="color: #94a3b8; font-size: 0.85rem;">Predicted Delayed (≥20m)</div>
+        <div class="metric-value" style="color: #f59e0b;">{rep['deliveries_delayed_count']} <span style="font-size: 0.95rem;">({rep['percentage_affected']}%)</span></div>
+    </div>
+    """, unsafe_allow_html=True)
+with c4:
     st.markdown(f"""
     <div class="metric-card">
         <div style="color: #94a3b8; font-size: 0.85rem;">SLA Window Breaches</div>
         <div class="metric-value" style="color: #ef4444;">{rep['predicted_sla_window_breaches']}</div>
     </div>
     """, unsafe_allow_html=True)
-with c4:
-    st.markdown(f"""
-    <div class="metric-card">
-        <div style="color: #94a3b8; font-size: 0.85rem;">Cold-Chain / Pharma at Risk</div>
-        <div class="metric-value" style="color: #a855f7;">{rep['temperature_sensitive_at_risk']}</div>
-    </div>
-    """, unsafe_allow_html=True)
 with c5:
     st.markdown(f"""
     <div class="metric-card">
-        <div style="color: #94a3b8; font-size: 0.85rem;">High / Critical Risk Total</div>
+        <div style="color: #94a3b8; font-size: 0.85rem;">Pharma at Risk</div>
+        <div class="metric-value" style="color: #a855f7;">{rep['temperature_sensitive_at_risk']}</div>
+    </div>
+    """, unsafe_allow_html=True)
+with c6:
+    st.markdown(f"""
+    <div class="metric-card">
+        <div style="color: #94a3b8; font-size: 0.85rem;">High / Critical Risk</div>
         <div class="metric-value" style="color: #fb7185;">{rep['critical_risk_count']}</div>
     </div>
     """, unsafe_allow_html=True)
@@ -201,9 +208,9 @@ st.subheader("💬 Operator Query & Advisor Copilot")
 col_chips = st.columns(6)
 quick_queries = [
     ("📊 Shift Overview", "Give me a live shift briefing for the dispatch operator"),
-    ("🥨 Munich Operations", "What deliveries are in transit around Munich?"),
-    ("⚓ Hamburg Deliveries", "Show deliveries in Hamburg"),
+    ("✅ On-Time Deliveries", "Show all on-time deliveries that are not at risk"),
     ("❄️ Pharma Cold-Chain", "Show all temperature-sensitive pharma packages at risk"),
+    ("🥨 Munich Operations", "What deliveries are in transit around Munich?"),
     ("⛈️ A9 Squall Line", "Which deliveries are affected by weather on the A9 corridor?"),
     ("🚨 SLA Window Breaches", "What packages are at risk of missing the delivery window?")
 ]
@@ -213,6 +220,7 @@ for idx, (label, query_text) in enumerate(quick_queries):
     with col_chips[idx]:
         if st.button(label, use_container_width=True):
             selected_chip_query = query_text
+
 
 # Text input for query
 user_query = st.text_input(

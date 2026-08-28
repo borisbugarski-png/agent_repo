@@ -164,10 +164,20 @@ class LogisticsToolsFactory:
         """
         Internal logic synthesizing WeatherNext2 forecast + Historic traffic bottlenecks into a DelayAssessment.
         """
+        # Parse departure hour to determine traffic congestion period (rush hour vs off-peak)
+        dep_hour = 18
+        try:
+            dep_dt = datetime.fromisoformat(delivery.scheduled_departure.replace("Z", "+00:00"))
+            dep_hour = dep_dt.hour
+        except Exception:
+            pass
+
+
         weather = self.weather_client.get_corridor_forecast(delivery.primary_transit_corridor)
         traffic = self.traffic_service.assess_traffic_risk(
             delivery.primary_transit_corridor,
-            delivery.estimated_transit_hours
+            delivery.estimated_transit_hours,
+            departure_hour=dep_hour
         )
 
         # Calculate weather slowdown in minutes
@@ -210,7 +220,9 @@ class LogisticsToolsFactory:
             risk_level = RiskLevel.LOW
 
         # Primary cause
-        if weather_delay_mins > traffic_delay_mins * 1.3:
+        if total_delay_mins < 15 and not will_miss_window:
+            primary_cause = "Nominal Road & Atmospheric Conditions (Optimal Transit)"
+        elif weather_delay_mins > traffic_delay_mins * 1.3:
             primary_cause = f"WeatherNext2 Alert: {weather.weather_condition} ({weather.precipitation_mm_hr} mm/h rain/snow, {weather.wind_gust_kmh} km/h gusts)"
         elif traffic_delay_mins > weather_delay_mins * 1.3:
             primary_cause = f"Historic Traffic: {traffic.congestion_level} congestion ({traffic.bottleneck_warning})"
@@ -218,7 +230,9 @@ class LogisticsToolsFactory:
             primary_cause = f"Compound Adverse Weather ({weather.weather_condition}) intersecting with Rush Hour Bottlenecks"
 
         # Action recommendation
-        if delivery.package_priority == PackagePriority.TEMPERATURE_SENSITIVE:
+        if total_delay_mins < 15 and not will_miss_window:
+            recommended_action = "ON TRACK: Delivery on schedule. No intervention required. Expected on-time arrival within SLA window."
+        elif delivery.package_priority == PackagePriority.TEMPERATURE_SENSITIVE:
             recommended_action = "CRITICAL PHARMA: Verify active cooling unit runtime. Consider immediate rerouting or priority bypass protocol."
         elif delivery.package_priority == PackagePriority.EXPRESS_SAME_DAY and will_miss_window:
             recommended_action = "EXPRESS BREACH: Notify dispatch operator to reassign last-mile courier or alert client of adjusted ETA."
@@ -228,18 +242,28 @@ class LogisticsToolsFactory:
             recommended_action = "MONITOR: Transit buffer currently absorbs delay. Monitor WeatherNext2 radar updates."
 
         # Operator advisory note
-        operator_advisory = (
-            f"Package {delivery.package_id} ({delivery.origin_city} -> {delivery.destination_city} via {delivery.primary_transit_corridor}) "
-            f"faces a predicted delay of ~{total_delay_mins} min (Weather: +{weather_delay_mins}m, Traffic: +{traffic_delay_mins}m). "
-            f"Expected Arrival: {predicted_arrival_dt.strftime('%H:%M UTC')} vs Scheduled Window End {win_end_dt.strftime('%H:%M UTC')}."
-        )
+        if total_delay_mins < 15 and not will_miss_window:
+            operator_advisory = (
+                f"Package {delivery.package_id} ({delivery.origin_city} -> {delivery.destination_city} via {delivery.primary_transit_corridor}) "
+                f"is ON TRACK with minimal delay (+{total_delay_mins} min). "
+                f"Expected Arrival: {predicted_arrival_dt.strftime('%H:%M UTC')} safely within Scheduled Window End {win_end_dt.strftime('%H:%M UTC')}."
+            )
+            client_notification_draft = (
+                f"Dear {delivery.recipient_name}, your delivery ({delivery.package_id}) from {delivery.client_name} is proceeding on schedule. "
+                f"Expected on-time arrival is {predicted_arrival_dt.strftime('%H:%M UTC')}."
+            )
+        else:
+            operator_advisory = (
+                f"Package {delivery.package_id} ({delivery.origin_city} -> {delivery.destination_city} via {delivery.primary_transit_corridor}) "
+                f"faces a predicted delay of ~{total_delay_mins} min (Weather: +{weather_delay_mins}m, Traffic: +{traffic_delay_mins}m). "
+                f"Expected Arrival: {predicted_arrival_dt.strftime('%H:%M UTC')} vs Scheduled Window End {win_end_dt.strftime('%H:%M UTC')}."
+            )
+            client_notification_draft = (
+                f"Dear {delivery.recipient_name}, your delivery ({delivery.package_id}) from {delivery.client_name} is in transit. "
+                f"Due to severe weather ({weather.weather_condition.replace('_', ' ').lower()}) along the {delivery.primary_transit_corridor} corridor, "
+                f"our logistics team anticipates a slight delay. Your updated estimated arrival is {predicted_arrival_dt.strftime('%H:%M UTC')}."
+            )
 
-        # Draft notification for client / recipient
-        client_notification_draft = (
-            f"Dear {delivery.recipient_name}, your delivery ({delivery.package_id}) from {delivery.client_name} is in transit. "
-            f"Due to severe weather ({weather.weather_condition.replace('_', ' ').lower()}) along the {delivery.primary_transit_corridor} corridor, "
-            f"our logistics team anticipates a slight delay. Your updated estimated arrival is {predicted_arrival_dt.strftime('%H:%M UTC')}."
-        )
 
         return DelayAssessment(
             delivery_id=delivery.delivery_id,

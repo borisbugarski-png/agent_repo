@@ -69,6 +69,7 @@ class GermanyLogisticsAdvisorAgent(ADKAgent):
         
         total_deliveries = len(assessments)
         delayed_deliveries = [a for a in assessments if a.total_predicted_delay_minutes >= 20]
+        on_time_deliveries = [a for a in assessments if not a.will_miss_window and a.total_predicted_delay_minutes < 20]
         critical_deliveries = [a for a in assessments if a.risk_level in [RiskLevel.HIGH, RiskLevel.CRITICAL]]
         missed_windows = [a for a in assessments if a.will_miss_window]
         temp_sensitive_delayed = [
@@ -87,6 +88,8 @@ class GermanyLogisticsAdvisorAgent(ADKAgent):
 
         summary = {
             "total_active_deliveries": total_deliveries,
+            "on_time_count": len(on_time_deliveries),
+            "on_time_percentage": round((len(on_time_deliveries) / total_deliveries * 100) if total_deliveries else 0, 1),
             "deliveries_delayed_count": len(delayed_deliveries),
             "percentage_affected": round((len(delayed_deliveries) / total_deliveries * 100) if total_deliveries else 0, 1),
             "critical_risk_count": len(critical_deliveries),
@@ -99,6 +102,7 @@ class GermanyLogisticsAdvisorAgent(ADKAgent):
                 "COR-A3 (Frankfurt - Cologne) [Spessart Rain & Frankfurter Kreuz Congestion]"
             ],
             "assessments": assessments,
+            "on_time_assessments": on_time_deliveries,
             "delayed_assessments": delayed_deliveries,
         }
         return summary
@@ -136,7 +140,25 @@ class GermanyLogisticsAdvisorAgent(ADKAgent):
                     f"📝 *Draft Client Notification*:\n> \"{res.client_notification_draft}\""
                 )
 
-        # 2. Temperature-sensitive or Healthcare query
+        # 2. On-Time / Deliveries Not At Risk query
+        if any(term in q_lower for term in ["on time", "on-time", "ontime", "not at risk", "not delayed", "safe", "punctual", "green"]):
+            assessments = self.analyze_all_active_deliveries()
+            on_time = [a for a in assessments if not a.will_miss_window and a.total_predicted_delay_minutes < 20]
+            out = [
+                f"✅ **On-Time & Low-Risk Deliveries ({len(on_time)} packages on schedule)**",
+                f"These shipments are traveling through clear atmospheric conditions with minimal traffic and are projected to arrive safely within their SLA windows:\n"
+            ]
+            for a in on_time:
+                icon = "❄️" if a.package_priority == PackagePriority.TEMPERATURE_SENSITIVE else "📦"
+                out.append(
+                    f"• {icon} **{a.package_id}** [{a.package_priority.value}] {a.origin_city} ➔ {a.destination_city} ({a.transit_corridor})\n"
+                    f"  - Client / Recipient: {a.client_name} ➔ {a.recipient_name}\n"
+                    f"  - Status: `{a.status.value}` | Predicted Delay: **+{a.total_predicted_delay_minutes} min** (Within Buffer)\n"
+                    f"  - Weather: `{a.weather_condition}` | Status: **ON TIME ✅**\n"
+                )
+            return "\n".join(out)
+
+        # 3. Temperature-sensitive or Healthcare query
         if "temperature" in q_lower or "pharma" in q_lower or "medical" in q_lower or "cold" in q_lower:
             assessments = self.analyze_all_active_deliveries()
             temp_del = [a for a in assessments if a.package_priority == PackagePriority.TEMPERATURE_SENSITIVE]
@@ -155,8 +177,8 @@ class GermanyLogisticsAdvisorAgent(ADKAgent):
                 )
             return "\n".join(out)
 
-        # 3. Regional / Corridor query (e.g., Bavaria, Berlin, Hamburg, A9, A8)
-        if any(c in q_lower for c in ["bavaria", "bayern", "a9", "a8", "a7", "a3", "hamburg", "berlin", "munich", "cologne", "frankfurt"]):
+        # 4. Regional / Corridor query (e.g., Bavaria, Berlin, Hamburg, A9, A8)
+        if any(c in q_lower for c in ["bavaria", "bayern", "a9", "a8", "a7", "a3", "a2", "a5", "a10", "hamburg", "berlin", "munich", "cologne", "frankfurt", "leipzig", "hanover", "stuttgart"]):
             assessments = self.analyze_all_active_deliveries()
             filtered = []
             for a in assessments:
@@ -168,6 +190,12 @@ class GermanyLogisticsAdvisorAgent(ADKAgent):
                     filtered.append(a)
                 elif "a3" in q_lower and "a3" in a.transit_corridor.lower():
                     filtered.append(a)
+                elif "a2" in q_lower and "a2" in a.transit_corridor.lower():
+                    filtered.append(a)
+                elif "a5" in q_lower and "a5" in a.transit_corridor.lower():
+                    filtered.append(a)
+                elif "a10" in q_lower and "a10" in a.transit_corridor.lower():
+                    filtered.append(a)
                 elif "bavaria" in q_lower or "bayern" in q_lower:
                     if a.origin_city in ["Munich", "Nuremberg"] or a.destination_city in ["Munich", "Nuremberg", "Augsburg", "Regensburg", "Ingolstadt", "Dingolfing", "Burghausen"]:
                         filtered.append(a)
@@ -175,13 +203,19 @@ class GermanyLogisticsAdvisorAgent(ADKAgent):
                     filtered.append(a)
                 elif "berlin" in q_lower and (a.origin_city == "Berlin" or a.destination_city == "Berlin"):
                     filtered.append(a)
+                elif "hanover" in q_lower and (a.origin_city == "Hanover" or a.destination_city == "Hanover"):
+                    filtered.append(a)
+                elif "leipzig" in q_lower and (a.origin_city == "Leipzig" or a.destination_city == "Leipzig"):
+                    filtered.append(a)
+                elif "stuttgart" in q_lower and (a.origin_city == "Stuttgart" or a.destination_city == "Stuttgart"):
+                    filtered.append(a)
 
             if not filtered:
                 filtered = [a for a in assessments if a.total_predicted_delay_minutes >= 30][:5]
 
             out = [f"📍 **Corridor / Regional Dispatch Report ({len(filtered)} deliveries matched):**\n"]
             for a in filtered:
-                flag = "🚨" if a.will_miss_window else "⚠️"
+                flag = "🚨" if a.will_miss_window else ("⚠️" if a.total_predicted_delay_minutes >= 20 else "✅")
                 out.append(
                     f"{flag} **{a.package_id}** ({a.origin_city} ➔ {a.destination_city} via {a.transit_corridor})\n"
                     f"   - Expected Delay: **+{a.total_predicted_delay_minutes} min** (Weather: +{a.weather_delay_minutes}m, Traffic: +{a.traffic_delay_minutes}m)\n"
@@ -190,7 +224,7 @@ class GermanyLogisticsAdvisorAgent(ADKAgent):
                 )
             return "\n".join(out)
 
-        # 4. Default High-Level Operator Overview
+        # 5. Default High-Level Operator Overview
         rep = self.generate_operator_advisory_report()
         out = [
             "🇩🇪 **ADK Germany Logistics Advisor — Live Shift Briefing**",
@@ -198,6 +232,7 @@ class GermanyLogisticsAdvisorAgent(ADKAgent):
             f"📊 **Network Snapshot**:",
             f"- Central Repository: BigQuery (`{self.repo.project_id}.{self.repo.dataset_id}`)",
             f"- Total Active Scheduled Deliveries: **{rep['total_active_deliveries']}**",
+            f"- On-Time Deliveries (Not at Risk): **{rep['on_time_count']}** ({rep['on_time_percentage']}%)",
             f"- Deliveries Predicted Delayed (≥20m): **{rep['deliveries_delayed_count']}** ({rep['percentage_affected']}%)",
             f"- Critical / High Risk Deliveries: **{rep['critical_risk_count']}**",
             f"- SLA Delivery Window Breaches: **{rep['predicted_sla_window_breaches']}**",
@@ -218,6 +253,7 @@ class GermanyLogisticsAdvisorAgent(ADKAgent):
             )
 
         out.append(
-            "\n💡 *You can ask specific questions like: 'Show pharma packages', 'Assess PKG-DE-1001', or 'What is happening on A9?'*"
+            "\n💡 *You can ask specific questions like: 'Show on-time deliveries', 'Show pharma packages', 'Assess PKG-DE-BER-01', or 'What is happening on A9?'*"
         )
         return "\n".join(out)
+
