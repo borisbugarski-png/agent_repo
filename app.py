@@ -16,10 +16,11 @@ from src.config import config
 # Page Configuration
 st.set_page_config(
     page_title="Logistics Delivery Advisor powered by Google Cloud",
-    page_icon="🇩🇪",
+    page_icon="📦",
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
 
 
 # Custom Styling (Zinc / Dark Modern Aesthetic)
@@ -108,7 +109,8 @@ agent = get_agent()
 repo = agent.repo
 
 # Header
-st.markdown('<div class="main-title">🇩🇪 Logistics Delivery Advisor powered by Google Cloud</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">Logistics Delivery Advisor powered by Google Cloud</div>', unsafe_allow_html=True)
+
 
 st.markdown(
     '<div class="sub-title">Powered by <b>Google WeatherNext2 Atmospheric AI</b>, <b>BigQuery Central Repository</b> & <b>Historic Autobahn Traffic Models</b></div>',
@@ -295,7 +297,8 @@ with tabs[0]:
 
 # TAB 2: Germany Route Map
 with tabs[1]:
-    st.markdown("#### 🇩🇪 Transit Route Corridors & Weather Hazard Map")
+    st.markdown("#### 🗺️ Transit Route Corridors & Weather Hazard Map")
+
     
     # Hub locations dictionary
     hub_coords = {

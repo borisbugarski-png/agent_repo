@@ -1,5 +1,6 @@
-🇩🇪 Logistics Delivery Advisor powered by Google Cloud — Overview
+Logistics Delivery Advisor powered by Google Cloud — Overview
 The Logistics Delivery Advisor powered by Google Cloud is an intelligent AI co-pilot designed for logistics dispatchers and operations teams managing package delivery networks across Germany.
+
 
 
 The agent proactively evaluates active shipments against real-time predictive atmospheric models and historical traffic bottlenecks, forecasting delays before they happen and providing actionable mitigation strategies to protect delivery SLAs.

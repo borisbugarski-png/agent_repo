@@ -58,7 +58,7 @@ def show_reasoning_progress_bar():
 def interactive_cli():
     console.print(
         Panel(
-            "[bold green]🇩🇪 Welcome to Logistics Delivery Advisor powered by Google Cloud[/bold green]\n"
+            "[bold green]Welcome to Logistics Delivery Advisor powered by Google Cloud[/bold green]\n"
             "Ask questions regarding scheduled package deliveries, weather impacts (Google WeatherNext2),\n"
             "historic traffic bottlenecks, or specific package IDs across Germany.\n\n"
             "Type [bold cyan]'exit'[/bold cyan] or [bold cyan]'quit'[/bold cyan] to terminate.",
@@ -66,6 +66,7 @@ def interactive_cli():
             border_style="green"
         )
     )
+
 
 
     agent = GermanyLogisticsAdvisorAgent()

@@ -227,8 +227,9 @@ class GermanyLogisticsAdvisorAgent(ADKAgent):
         # 5. Default High-Level Operator Overview
         rep = self.generate_operator_advisory_report()
         out = [
-            "🇩🇪 **Logistics Delivery Advisor powered by Google Cloud — Live Shift Briefing**",
+            "**Logistics Delivery Advisor powered by Google Cloud — Live Shift Briefing**",
             f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+
 
             f"📊 **Network Snapshot**:",
             f"- Central Repository: BigQuery (`{self.repo.project_id}.{self.repo.dataset_id}`)",

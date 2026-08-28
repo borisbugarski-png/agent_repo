@@ -19,11 +19,12 @@ console = Console()
 def run_advisory_dashboard():
     console.print(
         Panel.fit(
-            "[bold cyan]🇩🇪 ADK Logistics Advisor — German Package Delivery Intelligence[/bold cyan]\n"
+            "[bold cyan]Logistics Delivery Advisor powered by Google Cloud[/bold cyan]\n"
             "[dim]Powered by Google WeatherNext2 Atmospheric Predictions, BigQuery Repository & Historic Traffic Models[/dim]",
             border_style="cyan"
         )
     )
+
 
     agent = GermanyLogisticsAdvisorAgent()
     rep = agent.generate_operator_advisory_report()
