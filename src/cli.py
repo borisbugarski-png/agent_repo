@@ -45,7 +45,7 @@ def show_reasoning_progress_bar():
             while current < target_pct:
                 progress.advance(task, step_increment)
                 current += step_increment
-                time.sleep(0.05)  # Total 40 steps * 0.05s = 2.0 seconds
+                time.sleep(0.025)  # Total 40 steps * 0.025s = 1.0 second
 
 
 def interactive_cli():
