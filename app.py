@@ -126,9 +126,15 @@ all_assessments = rep["assessments"]
 # ---------------------------------------------------------
 st.sidebar.header("⚙️ Dispatch Controls")
 st.sidebar.markdown(f"**GCP Project**: `{repo.project_id}`")
-st.sidebar.markdown(f"**BigQuery Dataset**: `{repo.dataset_id}`")
+st.sidebar.markdown(f"**BigQuery Dataset**: `{repo.dataset_id}` (`{repo.location}`)")
+
+if repo.use_live_bq:
+    st.sidebar.success(f"🟢 **Live BigQuery Connected** ({len(all_assessments)} active records)")
+else:
+    st.sidebar.info("🟡 **Local Dataset Mode**")
 
 st.sidebar.markdown("---")
+
 st.sidebar.subheader("🔍 Filter Deliveries")
 
 cities = sorted(list(set([a.origin_city for a in all_assessments] + [a.destination_city for a in all_assessments])))
