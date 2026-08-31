@@ -74,28 +74,49 @@ class BigQueryLogisticsRepository:
                 "scheduled_deliveries": []
             }
 
+    def _execute_query(self, query: str):
+        """Executes BigQuery query with automatic client rejuvenation on connection failure."""
+        if not self.use_live_bq:
+            return None
+        try:
+            if self.bq_client is None:
+                from google.cloud import bigquery
+                self.bq_client = bigquery.Client(project=self.project_id, location=self.location)
+            return self.bq_client.query(query).result()
+        except Exception as e:
+            logger.warning(f"BigQuery query failed, refreshing client connection: {e}")
+            try:
+                from google.cloud import bigquery
+                self.bq_client = bigquery.Client(project=self.project_id, location=self.location)
+                return self.bq_client.query(query).result()
+            except Exception as retry_e:
+                logger.error(f"BigQuery query failed after retry: {retry_e}")
+                return None
+
     def get_logistics_hubs(self) -> List[LogisticsHub]:
         """Fetch all German distribution hubs."""
-        if self.use_live_bq and self.bq_client:
+        if self.use_live_bq:
             query = f"SELECT * FROM `{self.project_id}.{self.dataset_id}.logistics_hubs`"
-            try:
-                rows = self.bq_client.query(query).result()
-                return [LogisticsHub(**_format_bq_row(row)) for row in rows]
-            except Exception as e:
-                logger.warning(f"BigQuery query failed, using local cache: {e}")
+            rows = self._execute_query(query)
+            if rows is not None:
+                try:
+                    return [LogisticsHub(**_format_bq_row(row)) for row in rows]
+                except Exception as e:
+                    logger.warning(f"Parsing hubs failed: {e}")
 
         hubs_raw = self._local_data.get("logistics_hubs", [])
         return [LogisticsHub(**h) for h in hubs_raw]
 
     def get_historic_traffic_patterns(self) -> List[HistoricTrafficPattern]:
         """Fetch historical Autobahn traffic patterns."""
-        if self.use_live_bq and self.bq_client:
+        if self.use_live_bq:
             query = f"SELECT * FROM `{self.project_id}.{self.dataset_id}.historic_traffic_patterns`"
-            try:
-                rows = self.bq_client.query(query).result()
-                return [HistoricTrafficPattern(**_format_bq_row(row)) for row in rows]
-            except Exception as e:
-                logger.warning(f"BigQuery query failed, using local cache: {e}")
+            rows = self._execute_query(query)
+            if rows is not None:
+                try:
+                    return [HistoricTrafficPattern(**_format_bq_row(row)) for row in rows]
+                except Exception as e:
+                    logger.warning(f"Parsing traffic patterns failed: {e}")
 
         patterns_raw = self._local_data.get("historic_traffic_patterns", [])
         return [HistoricTrafficPattern(**p) for p in patterns_raw]
@@ -111,7 +132,7 @@ class BigQueryLogisticsRepository:
         """
         Query scheduled deliveries with optional filtering parameters.
         """
-        if self.use_live_bq and self.bq_client:
+        if self.use_live_bq:
             conditions = []
             if status:
                 conditions.append(f"status = '{status}'")
@@ -130,11 +151,13 @@ class BigQueryLogisticsRepository:
                 {where_clause}
                 ORDER BY scheduled_delivery_window_start ASC
             """
-            try:
-                rows = self.bq_client.query(query).result()
-                return [ScheduledDelivery(**_format_bq_row(row)) for row in rows]
-            except Exception as e:
-                logger.warning(f"BigQuery scheduled deliveries query failed, fallback: {e}")
+            rows = self._execute_query(query)
+            if rows is not None:
+                try:
+                    return [ScheduledDelivery(**_format_bq_row(row)) for row in rows]
+                except Exception as e:
+                    logger.warning(f"Parsing scheduled deliveries failed: {e}")
+
 
 
         # Local query filtering
