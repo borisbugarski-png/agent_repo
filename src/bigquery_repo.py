@@ -22,6 +22,14 @@ from src.agent.schemas import (
 logger = logging.getLogger(__name__)
 
 
+def _format_bq_row(row) -> dict:
+    d = dict(row)
+    for k, v in d.items():
+        if hasattr(v, "isoformat"):
+            d[k] = v.isoformat()
+    return d
+
+
 class BigQueryLogisticsRepository:
     """
     Central repository for logistics, delivery schedules, and historical transit data.
@@ -72,7 +80,7 @@ class BigQueryLogisticsRepository:
             query = f"SELECT * FROM `{self.project_id}.{self.dataset_id}.logistics_hubs`"
             try:
                 rows = self.bq_client.query(query).result()
-                return [LogisticsHub(**dict(row)) for row in rows]
+                return [LogisticsHub(**_format_bq_row(row)) for row in rows]
             except Exception as e:
                 logger.warning(f"BigQuery query failed, using local cache: {e}")
 
@@ -85,7 +93,7 @@ class BigQueryLogisticsRepository:
             query = f"SELECT * FROM `{self.project_id}.{self.dataset_id}.historic_traffic_patterns`"
             try:
                 rows = self.bq_client.query(query).result()
-                return [HistoricTrafficPattern(**dict(row)) for row in rows]
+                return [HistoricTrafficPattern(**_format_bq_row(row)) for row in rows]
             except Exception as e:
                 logger.warning(f"BigQuery query failed, using local cache: {e}")
 
@@ -124,9 +132,10 @@ class BigQueryLogisticsRepository:
             """
             try:
                 rows = self.bq_client.query(query).result()
-                return [ScheduledDelivery(**dict(row)) for row in rows]
+                return [ScheduledDelivery(**_format_bq_row(row)) for row in rows]
             except Exception as e:
                 logger.warning(f"BigQuery scheduled deliveries query failed, fallback: {e}")
+
 
         # Local query filtering
         deliveries_raw = self._local_data.get("scheduled_deliveries", [])

@@ -4,8 +4,10 @@ WeatherNext2 forecasts, and Delay Assessments across Germany.
 """
 
 from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Union
+from datetime import datetime
 from pydantic import BaseModel, Field
+
 
 
 class PackagePriority(str, Enum):
@@ -64,9 +66,9 @@ class ScheduledDelivery(BaseModel):
     destination_postal_code: str
     destination_lat: float
     destination_lon: float
-    scheduled_departure: str
-    scheduled_delivery_window_start: str
-    scheduled_delivery_window_end: str
+    scheduled_departure: Union[str, datetime]
+    scheduled_delivery_window_start: Union[str, datetime]
+    scheduled_delivery_window_end: Union[str, datetime]
     primary_transit_corridor: str
     estimated_transit_hours: float
     package_priority: PackagePriority
@@ -79,12 +81,13 @@ class CompletedDelivery(BaseModel):
     origin_city: str
     destination_city: str
     transit_corridor: str
-    scheduled_delivery_time: str
-    actual_delivery_time: str
+    scheduled_delivery_time: Union[str, datetime]
+    actual_delivery_time: Union[str, datetime]
     delay_minutes: int
     weather_condition_encountered: str
     traffic_condition_encountered: str
     delivery_status: str
+
 
 
 class WeatherNext2Forecast(BaseModel):

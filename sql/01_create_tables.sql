@@ -10,7 +10,8 @@ OPTIONS (
 );
 
 -- 1. Logistics Hubs Table
-CREATE OR REPLACE TABLE `logistics_germany.logistics_hubs` (
+DROP TABLE IF EXISTS `logistics_germany.logistics_hubs`;
+CREATE TABLE `logistics_germany.logistics_hubs` (
   hub_id STRING NOT NULL OPTIONS(description="Unique identifier for logistics hub"),
   hub_name STRING NOT NULL OPTIONS(description="Full name of hub facility"),
   city STRING NOT NULL OPTIONS(description="City location"),
@@ -23,7 +24,8 @@ CREATE OR REPLACE TABLE `logistics_germany.logistics_hubs` (
 CLUSTER BY city;
 
 -- 2. Historic Traffic Patterns Table
-CREATE OR REPLACE TABLE `logistics_germany.historic_traffic_patterns` (
+DROP TABLE IF EXISTS `logistics_germany.historic_traffic_patterns`;
+CREATE TABLE `logistics_germany.historic_traffic_patterns` (
   corridor_id STRING NOT NULL OPTIONS(description="Highway corridor ID (e.g. A9_MUC_NUE)"),
   corridor_name STRING NOT NULL OPTIONS(description="Autobahn corridor name"),
   origin_region STRING NOT NULL OPTIONS(description="Origin region/hub"),
@@ -37,7 +39,8 @@ CREATE OR REPLACE TABLE `logistics_germany.historic_traffic_patterns` (
 CLUSTER BY corridor_id;
 
 -- 3. Scheduled Deliveries Table
-CREATE OR REPLACE TABLE `logistics_germany.scheduled_deliveries` (
+DROP TABLE IF EXISTS `logistics_germany.scheduled_deliveries`;
+CREATE TABLE `logistics_germany.scheduled_deliveries` (
   delivery_id STRING NOT NULL OPTIONS(description="Unique delivery job identifier"),
   package_id STRING NOT NULL OPTIONS(description="Tracking identifier for package"),
   client_name STRING NOT NULL OPTIONS(description="Corporate or retail client sender"),
@@ -61,7 +64,8 @@ PARTITION BY DATE(scheduled_delivery_window_start)
 CLUSTER BY primary_transit_corridor, destination_city, package_priority;
 
 -- 4. Completed Deliveries Table (Historical Performance Baseline)
-CREATE OR REPLACE TABLE `logistics_germany.completed_deliveries` (
+DROP TABLE IF EXISTS `logistics_germany.completed_deliveries`;
+CREATE TABLE `logistics_germany.completed_deliveries` (
   delivery_id STRING NOT NULL,
   package_id STRING NOT NULL,
   origin_city STRING NOT NULL,
@@ -76,3 +80,4 @@ CREATE OR REPLACE TABLE `logistics_germany.completed_deliveries` (
 )
 PARTITION BY DATE(scheduled_delivery_time)
 CLUSTER BY transit_corridor, delivery_status;
+
