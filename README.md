@@ -69,7 +69,7 @@ adk_logistics_advisor/
 
 ### 1. Environment Setup
 ```bash
-cd /Users/borisbugarski/.gemini/jetski/scratch/adk_logistics_advisor
+cd /Users/users/.gemini/jetski/scratch/adk_logistics_advisor
 source .venv/bin/activate
 ```
 
