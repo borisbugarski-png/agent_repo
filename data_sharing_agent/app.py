@@ -478,7 +478,7 @@ with head_left:
 
 with head_right:
     theme_label = "🌙 Dark Mode" if not IS_DARK else "☀️ Light Mode"
-    st.button(theme_label, on_click=toggle_theme, use_container_width=True)
+    st.button(theme_label, on_click=toggle_theme, width="stretch")
 
 
 # ==============================================================================
@@ -515,7 +515,7 @@ with tab_chat:
 
     for idx, sug in enumerate(suggestions[:3]):
         with sug_cols[idx]:
-            if st.button(f"🔍 {sug}", key=f"sug_{idx}", use_container_width=True):
+            if st.button(f"🔍 {sug}", key=f"sug_{idx}", width="stretch"):
                 prompt_to_run = sug
 
     with sug_cols[3]:
@@ -524,7 +524,7 @@ with tab_chat:
             if active_persona.role != UserRole.ADMIN
             else "📋 Executive Global Briefing"
         )
-        if st.button(btn_label, key="sug_test_boundary", use_container_width=True):
+        if st.button(btn_label, key="sug_test_boundary", width="stretch"):
             prompt_to_run = test_violation_prompt
 
     st.markdown("---")
@@ -658,7 +658,7 @@ with tab_dashboard:
             )
             fig_bar.update_layout(**PLOT_LAYOUT, barmode="group", height=320)
             fig_bar.update_layout(legend=dict(orientation="h", y=1.12, font=dict(color=chart_font_color)))
-            st.plotly_chart(fig_bar, use_container_width=True, config={"displayModeBar": False})
+            st.plotly_chart(fig_bar, width="stretch", config={"displayModeBar": False})
         else:
             fig_cat = go.Figure()
             fig_cat.add_trace(
@@ -679,7 +679,7 @@ with tab_dashboard:
             )
             fig_cat.update_layout(**PLOT_LAYOUT, barmode="group", height=320)
             fig_cat.update_layout(legend=dict(orientation="h", y=1.12, font=dict(color=chart_font_color)))
-            st.plotly_chart(fig_cat, use_container_width=True, config={"displayModeBar": False})
+            st.plotly_chart(fig_cat, width="stretch", config={"displayModeBar": False})
         st.markdown("</div>", unsafe_allow_html=True)
 
     with col_right:
@@ -713,7 +713,7 @@ with tab_dashboard:
             )
             fig_trend.update_layout(**PLOT_LAYOUT, height=320)
             fig_trend.update_layout(legend=dict(orientation="h", y=1.12, font=dict(color=chart_font_color)))
-            st.plotly_chart(fig_trend, use_container_width=True, config={"displayModeBar": False})
+            st.plotly_chart(fig_trend, width="stretch", config={"displayModeBar": False})
         st.markdown("</div>", unsafe_allow_html=True)
 
     # Row 2: Order Status Breakdown + HTML Styled Table of Stores or Categories
@@ -738,7 +738,7 @@ with tab_dashboard:
             )
             fig_pie.update_layout(**PLOT_LAYOUT, height=310, showlegend=True)
             fig_pie.update_traces(textfont=dict(color=chart_font_color, size=11))
-            st.plotly_chart(fig_pie, use_container_width=True, config={"displayModeBar": False})
+            st.plotly_chart(fig_pie, width="stretch", config={"displayModeBar": False})
         st.markdown("</div>", unsafe_allow_html=True)
 
     with col_b2:
