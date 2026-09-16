@@ -1,0 +1,1 @@
+"""BigQuery governed repository package."""
