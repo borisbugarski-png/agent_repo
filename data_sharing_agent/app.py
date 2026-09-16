@@ -28,33 +28,34 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# 2. Theme Toggle State
+# 2. Theme Toggle State — Default to Light Mode
 if "theme" not in st.session_state:
-    st.session_state.theme = "dark"
+    st.session_state.theme = "light"
 
 
 def toggle_theme() -> None:
-    st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
+    st.session_state.theme = "dark" if st.session_state.theme == "light" else "light"
 
 
 IS_DARK = st.session_state.theme == "dark"
 
-# 3. Inject Unified Data App Design System CSS
+# 3. High-Contrast Theme Variables (Dark charcoal/black fonts in Light Mode)
 bg_val = "#09090b" if IS_DARK else "#ffffff"
-bg_subtle_val = "#0c0c0f" if IS_DARK else "#f9fafb"
+bg_subtle_val = "#0c0c0f" if IS_DARK else "#f8fafc"
 card_val = "#0c0c0f" if IS_DARK else "#ffffff"
-card_hover_val = "#131316" if IS_DARK else "#f4f4f5"
-border_val = "#1e1e24" if IS_DARK else "#e4e4e7"
-border_subtle_val = "#16161a" if IS_DARK else "#f0f0f2"
-text_val = "#fafafa" if IS_DARK else "#09090b"
-text_dim_val = "#71717a" if IS_DARK else "#a1a1aa"
-green_val = "#22c55e" if IS_DARK else "#16a34a"
-green_muted_val = "rgba(34,197,94,0.12)" if IS_DARK else "rgba(22,163,74,0.08)"
-red_val = "#ef4444" if IS_DARK else "#dc2626"
-red_muted_val = "rgba(239,68,68,0.12)" if IS_DARK else "rgba(220,38,38,0.08)"
-amber_val = "#f59e0b" if IS_DARK else "#d97706"
-amber_muted_val = "rgba(245,158,11,0.12)" if IS_DARK else "rgba(217,119,6,0.08)"
-shadow_val = "none" if IS_DARK else "0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03)"
+card_hover_val = "#18181b" if IS_DARK else "#f1f5f9"
+border_val = "#27272a" if IS_DARK else "#cbd5e1"
+border_subtle_val = "#1f1f23" if IS_DARK else "#e2e8f0"
+text_val = "#fafafa" if IS_DARK else "#0f172a"          # Deep slate-black (#0f172a) in Light Mode
+text_muted_val = "#a1a1aa" if IS_DARK else "#334155"    # Dark charcoal grey (#334155) in Light Mode
+text_dim_val = "#71717a" if IS_DARK else "#475569"      # Medium-dark slate (#475569) in Light Mode
+green_val = "#22c55e" if IS_DARK else "#15803d"
+green_muted_val = "rgba(34,197,94,0.14)" if IS_DARK else "rgba(21,128,61,0.10)"
+red_val = "#ef4444" if IS_DARK else "#b91c1c"
+red_muted_val = "rgba(239,68,68,0.14)" if IS_DARK else "rgba(185,28,28,0.10)"
+amber_val = "#f59e0b" if IS_DARK else "#b45309"
+amber_muted_val = "rgba(245,158,11,0.14)" if IS_DARK else "rgba(180,83,9,0.10)"
+shadow_val = "none" if IS_DARK else "0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)"
 
 st.markdown(
     f"""
@@ -69,7 +70,7 @@ st.markdown(
     --border: {border_val};
     --border-subtle: {border_subtle_val};
     --text: {text_val};
-    --text-muted: #71717a;
+    --text-muted: {text_muted_val};
     --text-dim: {text_dim_val};
     --accent: #2563eb;
     --accent-muted: #1d4ed8;
@@ -94,9 +95,108 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"], .main, .b
     font-family: 'DM Sans', -apple-system, sans-serif !important;
 }}
 
+/* Global typography legibility overrides */
+p, span, label, li, h1, h2, h3, h4, h5, h6,
+div[data-testid="stMarkdownContainer"] p,
+div[data-testid="stMarkdownContainer"] li,
+div[data-testid="stMarkdownContainer"] span,
+div[data-testid="stMarkdownContainer"] strong,
+div[data-testid="stMarkdownContainer"] h1,
+div[data-testid="stMarkdownContainer"] h2,
+div[data-testid="stMarkdownContainer"] h3,
+div[data-testid="stMarkdownContainer"] h4,
+div[data-testid="stMarkdownContainer"] h5 {{
+    color: var(--text) !important;
+}}
+
+div[data-testid="stCaptionContainer"],
+div[data-testid="stCaptionContainer"] p {{
+    color: var(--text-muted) !important;
+    font-size: 0.82rem !important;
+}}
+
+/* Sidebar & Widget Text Legibility */
 [data-testid="stSidebar"] {{
     background-color: var(--bg-subtle) !important;
     border-right: 1px solid var(--border) !important;
+}}
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] span,
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] h1,
+[data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3,
+[data-testid="stSidebar"] h4 {{
+    color: var(--text) !important;
+}}
+
+/* Radio & Selectbox controls */
+div[role="radiogroup"] label p,
+div[role="radiogroup"] label span,
+div[data-testid="stSelectbox"] label p,
+div[data-testid="stSelectbox"] div[data-baseweb="select"] * {{
+    color: var(--text) !important;
+}}
+div[data-baseweb="select"] > div {{
+    background-color: var(--card) !important;
+    border-color: var(--border) !important;
+}}
+div[data-baseweb="popover"] ul,
+div[data-baseweb="popover"] li {{
+    background-color: var(--card) !important;
+    color: var(--text) !important;
+}}
+
+/* Buttons */
+button[kind="secondary"],
+button[data-testid="baseButton-secondary"] {{
+    background-color: var(--card) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--border) !important;
+    font-weight: 500 !important;
+    box-shadow: var(--shadow) !important;
+}}
+button[kind="secondary"]:hover,
+button[data-testid="baseButton-secondary"]:hover {{
+    background-color: var(--card-hover) !important;
+    border-color: var(--accent) !important;
+    color: var(--accent) !important;
+}}
+button[kind="secondary"] p,
+button[data-testid="baseButton-secondary"] p {{
+    color: inherit !important;
+}}
+
+/* Chat Messages & Input */
+[data-testid="stChatMessage"] {{
+    background-color: var(--card) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    padding: 1rem 1.2rem !important;
+    margin-bottom: 0.8rem !important;
+    box-shadow: var(--shadow) !important;
+}}
+[data-testid="stChatMessageContent"] p,
+[data-testid="stChatMessageContent"] li,
+[data-testid="stChatMessageContent"] td,
+[data-testid="stChatMessageContent"] th {{
+    color: var(--text) !important;
+}}
+[data-testid="stChatInput"] textarea {{
+    color: var(--text) !important;
+    background-color: var(--card) !important;
+}}
+
+/* Expanders */
+[data-testid="stExpander"] {{
+    background-color: var(--bg-subtle) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+}}
+[data-testid="stExpander"] summary p,
+[data-testid="stExpander"] summary span {{
+    color: var(--text) !important;
+    font-weight: 600 !important;
 }}
 
 .block-container {{
@@ -108,9 +208,9 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"], .main, .b
 button[data-baseweb="tab"] {{
     background: transparent !important;
     color: var(--text-muted) !important;
-    font-size: 0.85rem !important;
-    font-weight: 500 !important;
-    padding: 0.55rem 1.1rem !important;
+    font-size: 0.86rem !important;
+    font-weight: 600 !important;
+    padding: 0.55rem 1.15rem !important;
     border: 1px solid transparent !important;
     border-radius: 7px !important;
     transition: all 0.15s ease !important;
@@ -147,7 +247,7 @@ button[data-baseweb="tab"][aria-selected="true"] {{
 }}
 .metric-label {{
     font-size: 0.76rem;
-    color: var(--text-muted);
+    color: var(--text-muted) !important;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -155,25 +255,25 @@ button[data-baseweb="tab"][aria-selected="true"] {{
 .metric-value {{
     font-size: 1.7rem;
     font-weight: 700;
-    color: var(--text);
+    color: var(--text) !important;
     letter-spacing: -0.03em;
     margin-top: 0.25rem;
     font-family: 'JetBrains Mono', monospace;
 }}
 .metric-delta {{
     font-size: 0.74rem;
-    font-weight: 500;
+    font-weight: 600;
     margin-top: 0.45rem;
-    padding: 2px 8px;
+    padding: 3px 9px;
     border-radius: 6px;
     display: inline-flex;
     align-items: center;
     gap: 4px;
 }}
-.delta-up {{ color: var(--green); background: var(--green-muted); }}
-.delta-down {{ color: var(--red); background: var(--red-muted); }}
-.delta-warn {{ color: var(--amber); background: var(--amber-muted); }}
-.delta-blue {{ color: var(--accent); background: rgba(37,99,235,0.12); }}
+.delta-up {{ color: var(--green) !important; background: var(--green-muted); }}
+.delta-down {{ color: var(--red) !important; background: var(--red-muted); }}
+.delta-warn {{ color: var(--amber) !important; background: var(--amber-muted); }}
+.delta-blue {{ color: var(--accent) !important; background: rgba(37,99,235,0.12); }}
 
 /* Chart Containers */
 .chart-wrap {{
@@ -184,17 +284,17 @@ button[data-baseweb="tab"][aria-selected="true"] {{
     box-shadow: var(--shadow);
     margin-bottom: 1rem;
 }}
-.chart-title {{ font-size: 0.9rem; font-weight: 600; color: var(--text); }}
-.chart-subtitle {{ font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.6rem; }}
+.chart-title {{ font-size: 0.92rem; font-weight: 700; color: var(--text) !important; }}
+.chart-subtitle {{ font-size: 0.78rem; color: var(--text-muted) !important; margin-bottom: 0.6rem; }}
 
 /* Custom HTML Data Table */
-.data-table {{ width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.82rem; }}
+.data-table {{ width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.83rem; }}
 .data-table th {{
     text-align: left;
     padding: 0.65rem 0.85rem;
-    color: var(--text-muted);
-    font-weight: 600;
-    font-size: 0.72rem;
+    color: var(--text-muted) !important;
+    font-weight: 700;
+    font-size: 0.73rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     border-bottom: 1px solid var(--border);
@@ -202,56 +302,53 @@ button[data-baseweb="tab"][aria-selected="true"] {{
 }}
 .data-table td {{
     padding: 0.65rem 0.85rem;
-    color: var(--text);
+    color: var(--text) !important;
     border-bottom: 1px solid var(--border-subtle);
     font-family: 'DM Sans', sans-serif;
 }}
 .data-table td.mono {{
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.78rem;
+    font-size: 0.79rem;
+    color: var(--text) !important;
 }}
 .data-table tr:hover td {{
     background: var(--card-hover);
 }}
 
 /* Badges */
-.badge {{ display: inline-block; padding: 2px 9px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; font-family: 'JetBrains Mono', monospace; }}
-.badge-green {{ color: var(--green); background: var(--green-muted); }}
-.badge-red {{ color: var(--red); background: var(--red-muted); }}
-.badge-amber {{ color: var(--amber); background: var(--amber-muted); }}
-.badge-blue {{ color: var(--accent); background: rgba(37,99,235,0.12); }}
-
-/* Governance Card */
-.gov-banner {{
-    background: var(--bg-subtle);
-    border: 1px solid var(--border);
-    border-left: 4px solid var(--accent);
-    border-radius: var(--radius);
-    padding: 0.9rem 1.2rem;
-    margin-bottom: 1.2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}}
+.badge {{ display: inline-block; padding: 2px 9px; border-radius: 6px; font-size: 0.73rem; font-weight: 600; font-family: 'JetBrains Mono', monospace; }}
+.badge-green {{ color: var(--green) !important; background: var(--green-muted); }}
+.badge-red {{ color: var(--red) !important; background: var(--red-muted); }}
+.badge-amber {{ color: var(--amber) !important; background: var(--amber-muted); }}
+.badge-blue {{ color: var(--accent) !important; background: rgba(37,99,235,0.12); }}
 </style>
 """,
     unsafe_allow_html=True,
 )
 
+# Plotly Chart Styling with high-contrast dark charcoal fonts in Light Mode
+chart_font_color = "#a1a1aa" if IS_DARK else "#1e293b"
+chart_grid_color = "rgba(255,255,255,0.06)" if IS_DARK else "rgba(15,23,42,0.08)"
+
 PLOT_LAYOUT = dict(
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="rgba(0,0,0,0)",
-    font=dict(family="DM Sans, sans-serif", color="#a1a1aa" if IS_DARK else "#71717a", size=11),
+    font=dict(family="DM Sans, sans-serif", color=chart_font_color, size=12),
     margin=dict(l=8, r=8, t=12, b=8),
     xaxis=dict(
-        gridcolor="rgba(255,255,255,0.05)" if IS_DARK else "rgba(0,0,0,0.05)",
-        zerolinecolor="rgba(255,255,255,0.05)" if IS_DARK else "rgba(0,0,0,0.05)",
-        tickfont=dict(size=10),
+        gridcolor=chart_grid_color,
+        zerolinecolor=chart_grid_color,
+        tickfont=dict(size=11, color=chart_font_color),
+        title_font=dict(color=chart_font_color),
     ),
     yaxis=dict(
-        gridcolor="rgba(255,255,255,0.05)" if IS_DARK else "rgba(0,0,0,0.05)",
-        zerolinecolor="rgba(255,255,255,0.05)" if IS_DARK else "rgba(0,0,0,0.05)",
-        tickfont=dict(size=10),
+        gridcolor=chart_grid_color,
+        zerolinecolor=chart_grid_color,
+        tickfont=dict(size=11, color=chart_font_color),
+        title_font=dict(color=chart_font_color),
+    ),
+    legend=dict(
+        font=dict(color=chart_font_color, size=11),
     ),
 )
 
@@ -317,12 +414,12 @@ with st.sidebar:
     st.markdown("#### 📜 Active Governance Contract")
     st.markdown(
         f"""
-    <div style="background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.85rem; font-size: 0.8rem;">
+    <div style="background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.9rem; font-size: 0.82rem; color: var(--text);">
         <div><b>Stakeholder</b>: {active_persona.full_name}</div>
-        <div style="margin-top:4px;"><b>Role</b>: <span class="badge badge-blue">{active_persona.role.value}</span></div>
-        <div style="margin-top:6px;"><b>Authorized Scope</b>:<br/><span style="color: var(--text-muted);">{scope_label}</span></div>
+        <div style="margin-top:5px;"><b>Role</b>: <span class="badge badge-blue">{active_persona.role.value}</span></div>
+        <div style="margin-top:6px;"><b>Authorized Scope</b>:<br/><span style="color: var(--text-muted); font-weight: 500;">{scope_label}</span></div>
         <div style="margin-top:8px;"><b>Enforced BigQuery RLS</b>:<br/>
-            <code style="font-family:'JetBrains Mono',monospace; font-size:0.74rem; color:var(--green);">WHERE {rls_predicate}</code>
+            <code style="font-family:'JetBrains Mono',monospace; font-size:0.76rem; color:var(--green); font-weight: 600;">WHERE {rls_predicate}</code>
         </div>
     </div>
     """,
@@ -367,20 +464,20 @@ with head_left:
     st.markdown(
         f"""
     <div style="display:flex; align-items:center; gap: 12px; margin-bottom: 0.3rem;">
-        <span style="font-size: 1.55rem; font-weight: 700; letter-spacing: -0.03em;">◆ Data Sharing Agent</span>
+        <span style="font-size: 1.55rem; font-weight: 700; letter-spacing: -0.03em; color: var(--text);">◆ Data Sharing Agent</span>
         <span class="badge {role_badge_cls}">{active_persona.role.value}</span>
         <span class="badge badge-blue">BigQuery Data Mesh</span>
     </div>
-    <div style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 1rem;">
-        Active Stakeholder: <b>{active_persona.full_name}</b> ({active_persona.title}) &nbsp;|&nbsp;
-        Enforced Scope: <code style="font-family:'JetBrains Mono',monospace;">WHERE {rls_predicate}</code>
+    <div style="font-size: 0.86rem; color: var(--text-muted); font-weight: 500; margin-bottom: 1rem;">
+        Active Stakeholder: <b style="color: var(--text);">{active_persona.full_name}</b> ({active_persona.title}) &nbsp;|&nbsp;
+        Enforced Scope: <code style="font-family:'JetBrains Mono',monospace; color: var(--green); font-weight: 600;">WHERE {rls_predicate}</code>
     </div>
     """,
         unsafe_allow_html=True,
     )
 
 with head_right:
-    theme_label = "☀️ Light Mode" if IS_DARK else "🌙 Dark Mode"
+    theme_label = "🌙 Dark Mode" if not IS_DARK else "☀️ Light Mode"
     st.button(theme_label, on_click=toggle_theme, use_container_width=True)
 
 
@@ -403,7 +500,6 @@ tab_chat, tab_dashboard, tab_catalog, tab_audit = st.tabs(
 with tab_chat:
     # Render suggested follow-up prompt buttons
     suggestions = get_persona_suggestions(active_persona)
-    # Also add a cross-boundary test button for Store/Regional Managers to demonstrate governance blocking
     if active_persona.role == UserRole.STORE_MANAGER:
         other_store = "Houston TX" if active_persona.assigned_store_id != 3 else "Chicago IL"
         test_violation_prompt = f"Show me total sales revenue and profit for {other_store} store"
@@ -557,10 +653,11 @@ with tab_dashboard:
                     x=stores_df["store_name"],
                     y=stores_df["profit"],
                     name="Gross Profit ($)",
-                    marker_color="#22c55e",
+                    marker_color="#15803d" if not IS_DARK else "#22c55e",
                 )
             )
-            fig_bar.update_layout(**PLOT_LAYOUT, barmode="group", height=320, legend=dict(orientation="h", y=1.12))
+            fig_bar.update_layout(**PLOT_LAYOUT, barmode="group", height=320)
+            fig_bar.update_layout(legend=dict(orientation="h", y=1.12, font=dict(color=chart_font_color)))
             st.plotly_chart(fig_bar, use_container_width=True, config={"displayModeBar": False})
         else:
             fig_cat = go.Figure()
@@ -577,10 +674,11 @@ with tab_dashboard:
                     x=cats_df["product_category"],
                     y=cats_df["profit"],
                     name="Gross Profit ($)",
-                    marker_color="#22c55e",
+                    marker_color="#15803d" if not IS_DARK else "#22c55e",
                 )
             )
-            fig_cat.update_layout(**PLOT_LAYOUT, barmode="group", height=320, legend=dict(orientation="h", y=1.12))
+            fig_cat.update_layout(**PLOT_LAYOUT, barmode="group", height=320)
+            fig_cat.update_layout(legend=dict(orientation="h", y=1.12, font=dict(color=chart_font_color)))
             st.plotly_chart(fig_cat, use_container_width=True, config={"displayModeBar": False})
         st.markdown("</div>", unsafe_allow_html=True)
 
@@ -610,10 +708,11 @@ with tab_dashboard:
                     y=trend_df["profit"],
                     mode="lines+markers",
                     name="Gross Profit ($)",
-                    line=dict(color="#22c55e", width=2.5),
+                    line=dict(color="#15803d" if not IS_DARK else "#22c55e", width=2.5),
                 )
             )
-            fig_trend.update_layout(**PLOT_LAYOUT, height=320, legend=dict(orientation="h", y=1.12))
+            fig_trend.update_layout(**PLOT_LAYOUT, height=320)
+            fig_trend.update_layout(legend=dict(orientation="h", y=1.12, font=dict(color=chart_font_color)))
             st.plotly_chart(fig_trend, use_container_width=True, config={"displayModeBar": False})
         st.markdown("</div>", unsafe_allow_html=True)
 
@@ -635,9 +734,10 @@ with tab_dashboard:
                 names="order_status",
                 values="item_count",
                 hole=0.55,
-                color_discrete_sequence=["#2563eb", "#22c55e", "#f59e0b", "#ef4444", "#a855f7"],
+                color_discrete_sequence=["#2563eb", "#15803d", "#d97706", "#dc2626", "#7c3aed"],
             )
             fig_pie.update_layout(**PLOT_LAYOUT, height=310, showlegend=True)
+            fig_pie.update_traces(textfont=dict(color=chart_font_color, size=11))
             st.plotly_chart(fig_pie, use_container_width=True, config={"displayModeBar": False})
         st.markdown("</div>", unsafe_allow_html=True)
 
